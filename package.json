@@ -1,0 +1,27 @@
+{
+  "name": "@chriscdn/fastify-sse-manager",
+  "version": "1.0.0",
+  "main": "fastify/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build-client": "rollup -c",
+    "watch-client": "rollup -c --watch",
+    "example": "nodemon ./example/index.js",
+    "example-debug": "node --inspect-brk ./example/index.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.7",
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^21.0.2",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "eslint": "^8.11.0",
+    "fastify": "^3.27.4",
+    "fastify-static": "^4.6.0",
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "event-iterator": "^2.0.0",
+    "fastify-sse-v2": "^2.0.6",
+    "url-join": "^4.0.1"
+  }
+}

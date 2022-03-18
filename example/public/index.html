@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="/lib/client.umd.js"></script>
+    <script>
+      const Client = window['sse-client'].default
+      // window.sseClient = new Client({{ sseurl.jstring }}, {{ user.hash.jstring }})
+
+      const channel = new Client({ channel: 'cbc' })
+
+      channel.addEventListener('breaking-news', (event) => {
+        console.log(event.data)
+      })
+    </script>
+  </head>
+
+  <body>
+    hello
+  </body>
+</html>
