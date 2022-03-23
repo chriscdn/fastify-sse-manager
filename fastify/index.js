@@ -10,6 +10,7 @@ module.exports = (fastify, opts, done) => {
   // console.log(opts)
   fastify.get('/:channel', {
     schema: {
+      ...(opts.schema || {}),
       params: {
         channel: {
           type: 'string',
