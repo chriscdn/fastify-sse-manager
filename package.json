@@ -1,11 +1,11 @@
 {
   "name": "@chriscdn/fastify-sse-manager",
-  "version": "1.0.0",
-  "main": "fastify/index.js",
+  "version": "0.0.1",
+  "main": "fastify-plugin/index.js",
   "license": "MIT",
   "scripts": {
-    "build-client": "rollup -c",
-    "watch-client": "rollup -c --watch",
+    "build": "rollup -c",
+    "watch": "rollup -c --watch",
     "example": "nodemon ./example/index.js",
     "example-debug": "node --inspect-brk ./example/index.js"
   },

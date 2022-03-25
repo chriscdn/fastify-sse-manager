@@ -8,7 +8,7 @@ const fastify = Fastify({
 const path = require('path')
 // const sse = require('../express/')
 
-const sseManager = require('../fastify/manager')
+// const sseManager = require('../fastify/manager')
 
 const { sendSSEMessage } = require('../fastify/routes')
 

@@ -4,10 +4,9 @@ const eventEmitter = new EventEmitter()
 
 // https://seg.phault.net/blog/2018/03/async-iterators-cancellation/
 module.exports = (fastify, opts, done) => {
+  // This might be a problem if imported multiple times?
   fastify.register(FastifySSEPlugin)
 
-  // console.log('----')
-  // console.log(opts)
   fastify.get('/:channel', {
     schema: {
       ...(opts.schema || {}),
@@ -18,7 +17,7 @@ module.exports = (fastify, opts, done) => {
       },
       required: 'channel',
     },
-
+    preHandler: opts.preHandler || [],
     // don't make this async.. see logs if you do
     handler(req, res) {
       const channel = req.params.channel

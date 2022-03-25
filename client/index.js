@@ -11,7 +11,7 @@ class Client {
     this.eventSource.addEventListener('open', this.onOpen.bind(this))
     this.eventSource.addEventListener('error', this.onError.bind(this))
 
-    // closed is a standard message, hijacked for our purposes
+    // close is a standard message, hijacked for our purposes
     this.eventSource.addEventListener('close', this.close.bind(this))
   }
 
