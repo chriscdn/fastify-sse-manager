@@ -3,10 +3,11 @@
   <head>
     <script src="/lib/client.umd.js"></script>
     <script>
-      const Client = window['sse-client'].default
+      const Client = window['sse-client']
+
       // window.sseClient = new Client({{ sseurl.jstring }}, {{ user.hash.jstring }})
 
-      const channel = new Client({ channel: 'cbc' })
+      const channel = new Client('/sse', 'cbc')
 
       channel.addEventListener('breaking-news', (event) => {
         console.log(event.data)

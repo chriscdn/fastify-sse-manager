@@ -10,13 +10,13 @@ const path = require('path')
 
 // const sseManager = require('../fastify/manager')
 
-const { sendSSEMessage } = require('../fastify/routes')
+const { sendSSEMessage } = require('../fastify-plugin/')
 
-// setInterval(() => {
-//   sendSSEMessage('cbc', 'breaking-news', { hello: 'world' })
-// }, 3000)
+setInterval(() => {
+  sendSSEMessage('cbc', 'breaking-news', { hello: 'world' })
+}, 3000)
 
-fastify.register(require('../fastify/routes'), { prefix: 'sse' })
+fastify.register(require('../fastify-plugin'), { prefix: 'sse' })
 
 fastify.register(require('fastify-static'), {
   root: path.resolve(__dirname, '../lib/'),

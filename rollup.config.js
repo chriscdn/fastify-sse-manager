@@ -7,8 +7,8 @@ export default [
     input: 'client/index.js',
     output: [
       {
-        file: 'lib/client.es.js',
-        format: 'es',
+        file: 'lib/client.umd.js',
+        format: 'umd',
         name: 'sse-client',
         // exports: 'named',
         sourcemap: true,
