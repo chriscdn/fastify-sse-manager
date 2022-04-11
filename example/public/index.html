@@ -3,15 +3,14 @@
   <head>
     <script src="/lib/client.umd.js"></script>
     <script>
-      const Client = window['sse-client']
-
-      // window.sseClient = new Client({{ sseurl.jstring }}, {{ user.hash.jstring }})
-
+      const Client = window.SSEClient
       const channel = new Client('/sse', 'cbc')
 
       channel.addEventListener('breaking-news', (event) => {
         console.log(event.data)
       })
+
+      setTimeout(() => channel.removeEventListener('breaking-news'), 5000)
     </script>
   </head>
 

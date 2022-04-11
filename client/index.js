@@ -13,10 +13,12 @@ class Client {
 
     // close is a standard message, hijacked for our purposes
     this.eventSource.addEventListener('close', this.close.bind(this))
+
+    // keep record of our callback functions to make them available to removeEventListener
+    this._callbacks = {}
   }
 
   onOpen(event) {}
-
   onError(event) {}
 
   close(event) {
@@ -35,7 +37,19 @@ class Client {
       })
     }
 
+    // Only one listenter at a time.  If a second is needed, then change the code and document why.
+    this.removeEventListener(eventName)
+
+    this._callbacks[eventName] = callback
     this.eventSource.addEventListener(eventName, callback)
+  }
+
+  removeEventListener(eventName) {
+    const callback = this._callbacks[eventName]
+    if (callback) {
+      this.eventSource.removeEventListener(eventName, callback)
+      delete this._callbacks[eventName]
+    }
   }
 }
 

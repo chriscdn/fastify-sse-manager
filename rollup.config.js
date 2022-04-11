@@ -9,7 +9,7 @@ export default [
       {
         file: 'lib/client.umd.js',
         format: 'umd',
-        name: 'sse-client',
+        name: 'SSEClient',
         // exports: 'named',
         sourcemap: true,
       },

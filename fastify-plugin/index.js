@@ -28,13 +28,21 @@ module.exports = (fastify, opts, done) => {
       const channel = req.params.channel
 
       const lastEventId = req.headers['last-event-id']
-      console.log(`lastEventId: ${lastEventId}`)
 
-      // TODO: Send history based on lastEventId
+      const missedMessages = messageHistory.messageHistoryForChannel(
+        channel,
+        lastEventId
+      )
 
       const aIter = on(eventEmitter, channel)
+
       res.sse(
         (async function* () {
+          // yield all missed messages based on lastEventId
+          for (const missedMessage of missedMessages) {
+            yield missedMessage
+          }
+
           // https://nodejs.org/api/events.html#eventsonemitter-eventname-options
           for await (const events of aIter) {
             for (let event of events) {
@@ -62,8 +70,17 @@ class MessageHistory {
     this.lastId = 0
   }
 
-  push(message) {
-    this.messageHistory.push(message)
+  messageHistoryForChannel(channelName, lastEventId) {
+    return lastEventId != null
+      ? this.messageHistory
+          .filter((item) => item.channelName === channelName)
+          .filter((item) => item.id > lastEventId)
+          .map((item) => item.message)
+      : []
+  }
+
+  push(channelName, message) {
+    this.messageHistory.push({ channelName, id: message.id, message })
   }
 
   nextId() {
@@ -84,7 +101,7 @@ module.exports.sendSSEMessage = (channelName, eventName, data = {}) => {
   }
 
   // push it onto the history stack
-  messageHistory.push(message)
+  messageHistory.push(channelName, message)
 
   // fire it off
   eventEmitter.emit(channelName, message)
