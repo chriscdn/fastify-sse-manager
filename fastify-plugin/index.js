@@ -81,6 +81,9 @@ class MessageHistory {
 
   push(channelName, message) {
     this.messageHistory.push({ channelName, id: message.id, message })
+
+    // keep last 1000 messages.. make configurable
+    this.messageHistory = this.messageHistory.slice(-1000)
   }
 
   nextId() {
