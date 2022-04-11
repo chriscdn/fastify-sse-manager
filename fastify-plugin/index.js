@@ -20,7 +20,7 @@ module.exports = (fastify, opts, done) => {
           type: 'integer',
         },
       },
-      required: 'channel',
+      required: ['channel'],
     },
     preHandler: opts.preHandler || [],
     // don't make this async.. see logs if you do
