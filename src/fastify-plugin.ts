@@ -1,6 +1,6 @@
 import { EventEmitter, on } from "events";
-import { FastifyPluginCallback, FastifyPluginOptions } from "fastify";
-import { JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
+import type { FastifyPluginCallback, FastifyPluginOptions } from "fastify";
+import { type JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import FastifySSEPlugin from "fastify-sse-v2";
 
 const eventEmitter = new EventEmitter();
@@ -20,6 +20,8 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
   const server = fastifyInstance.withTypeProvider<JsonSchemaToTsProvider>();
 
   // This might be a problem if imported multiple times?
+
+  // @ts-ignore
   server.register(FastifySSEPlugin);
 
   server.get("/:channel", {

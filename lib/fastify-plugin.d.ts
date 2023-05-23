@@ -1,4 +1,4 @@
-import { FastifyPluginCallback, FastifyPluginOptions } from "fastify";
+import type { FastifyPluginCallback, FastifyPluginOptions } from "fastify";
 type TOptions = FastifyPluginOptions & {
     schema?: Record<string, any>;
     preHandler?: any;

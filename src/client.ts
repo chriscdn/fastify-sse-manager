@@ -63,4 +63,4 @@ class Client<T> {
   }
 }
 
-export default Client;
+export { Client };
