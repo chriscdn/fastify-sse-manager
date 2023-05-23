@@ -12,4 +12,4 @@ declare class Client<T> {
     }) => void): void;
     removeEventListener(eventName: string): void;
 }
-export { Client };
+export default Client;
