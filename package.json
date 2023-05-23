@@ -2,7 +2,7 @@
   "name": "@chriscdn/fastify-sse-manager",
   "version": "0.0.3",
   "license": "MIT",
-  "type": "module",
+  "main": "./lib/fastify-plugin.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "watch": "nodemon",

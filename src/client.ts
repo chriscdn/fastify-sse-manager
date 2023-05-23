@@ -25,8 +25,6 @@ class Client<T> {
   onError(event: MessageEvent) {}
 
   close() {
-    debugger;
-    console.log("closed");
     this.eventSource?.close();
     this.eventSource = null;
   }
