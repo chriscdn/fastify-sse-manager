@@ -20,9 +20,11 @@ class Client<T> {
   }
 
   onOpen(event: MessageEvent) {
-    console.log("onOpen");
+    // console.log("onOpen");
   }
-  onError(event: MessageEvent) {}
+  onError(event: MessageEvent) {
+    // console.log("onError");
+  }
 
   close() {
     this.eventSource?.close();

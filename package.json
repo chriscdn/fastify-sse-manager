@@ -14,8 +14,6 @@
   },
   "devDependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^2.2.2",
-    "@tsconfig/node16": "^1.0.4",
-    "@tsconfig/node18": "^2.0.1",
     "@types/events": "^3.0.0",
     "@types/node": "^20.2.3",
     "fastify": "^4.17.0",

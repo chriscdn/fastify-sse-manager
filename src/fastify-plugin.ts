@@ -66,6 +66,19 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
         signal: abortController.signal,
       });
 
+      console.log("OK");
+
+      reply.raw.on("close", () => {
+        console.log("*****on close2 never called!");
+        // abortController.abort();
+      });
+
+      // https://github.com/NodeFactoryIo/fastify-sse-v2
+      // request.socket.on("close", () => {
+      //   console.log("***** on close");
+      //   // abortController.abort();
+      // });
+
       reply.sse(
         (async function* () {
           // yield all missed messages based on lastEventId
@@ -86,13 +99,6 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
       if (opts?.didRegisterToChannel) {
         opts.didRegisterToChannel(channel);
       }
-
-      // reply.raw.on("close", () => ac.abort());
-      // https://github.com/NodeFactoryIo/fastify-sse-v2
-      request.socket.on("close", () => {
-        console.log("on close");
-        abortController.abort();
-      });
     },
   });
 
