@@ -5,10 +5,10 @@ declare class Client<T> {
     constructor(path: string);
     onOpen(event: MessageEvent): void;
     onError(event: MessageEvent): void;
-    close(event: MessageEvent): void;
+    close(): void;
     addEventListener<T>(eventName: string, _callback: ({ type, data }: {
         type: string;
-        data: Record<string, any>;
+        data: T;
     }) => void): void;
     removeEventListener(eventName: string): void;
 }

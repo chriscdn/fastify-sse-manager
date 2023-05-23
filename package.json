@@ -1,8 +1,7 @@
 {
   "name": "@chriscdn/fastify-sse-manager",
   "version": "0.0.3",
-  "main": "lib/fastify-plugin.js",
-  "browser": "lib/client.js",
+  "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -11,8 +10,7 @@
     "example-debug": "node --inspect-brk ./example/index.js"
   },
   "dependencies": {
-    "fastify-sse-v2": "^3.1.0",
-    "url-join": "^5.0.0"
+    "fastify-sse-v2": "^3.1.0"
   },
   "devDependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^2.2.2",

@@ -1,9 +1,3 @@
-import urljoin from "url-join";
-
-// export type TCallbackFunction = (
-//   { type, data }: { type: string; data: Record<string, T> },
-// ) => void;
-
 class Client<T> {
   private eventSource: EventSource | null;
   private _callbacks: Record<string, any>;
@@ -25,10 +19,14 @@ class Client<T> {
     this._callbacks = {};
   }
 
-  onOpen(event: MessageEvent) {}
+  onOpen(event: MessageEvent) {
+    console.log("onOpen");
+  }
   onError(event: MessageEvent) {}
 
-  close(event: MessageEvent) {
+  close() {
+    debugger;
+    console.log("closed");
     this.eventSource?.close();
     this.eventSource = null;
   }
@@ -36,12 +34,12 @@ class Client<T> {
   addEventListener<T>(
     eventName: string,
     _callback: (
-      { type, data }: { type: string; data: Record<string, any> },
+      { type, data }: { type: string; data: T },
     ) => void,
   ) {
     const callback = (event: MessageEvent) => {
       const type: string = event.type;
-      const data: Record<string, T> = JSON.parse(event.data);
+      const data: T = JSON.parse(event.data);
 
       _callback({
         type,

@@ -7,12 +7,6 @@ const eventEmitter = new EventEmitter();
 
 type TOptions = FastifyPluginOptions & {
   schema?: Record<string, any>;
-  //   preHandler: (
-  //     request: FastifyRequest,
-  //     reply: FastifyReply,
-  //     done?: () => {},
-  //   ) => void | undefined;
-  // todo
   preHandler?: any;
   didRegisterToChannel?: (channel: string) => void;
 };
@@ -20,7 +14,7 @@ type TOptions = FastifyPluginOptions & {
 // https://seg.phault.net/blog/2018/03/async-iterators-cancellation/
 const fastifyPlugin: FastifyPluginCallback<TOptions> = (
   fastifyInstance,
-  _opts,
+  opts,
   done,
 ) => {
   const server = fastifyInstance.withTypeProvider<JsonSchemaToTsProvider>();
@@ -30,7 +24,7 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
 
   server.get("/:channel", {
     schema: {
-      // ...(opts.schema ?? {}),
+      ...(opts.schema ?? {}),
       params: {
         type: "object",
         properties: {
@@ -53,7 +47,7 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
       // },
     } as const,
 
-    // preHandler: opts.preHandler ?? [],
+    preHandler: opts.preHandler ?? [],
 
     handler(request, reply) {
       const channel: string = request.params.channel;
@@ -63,6 +57,7 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
         channel,
         lastEventId,
       );
+
       const abortController = new AbortController();
 
       const aIter = on(eventEmitter, channel, {
@@ -86,13 +81,16 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
       );
 
       // here we want to somehow broadcast or notify that a connection was made
-      // if (opts?.didRegisterToChannel) {
-      //   opts.didRegisterToChannel(channel);
-      // }
+      if (opts?.didRegisterToChannel) {
+        opts.didRegisterToChannel(channel);
+      }
 
       // reply.raw.on("close", () => ac.abort());
       // https://github.com/NodeFactoryIo/fastify-sse-v2
-      request.socket.on("close", () => abortController.abort());
+      request.socket.on("close", () => {
+        console.log("on close");
+        abortController.abort();
+      });
     },
   });
 
@@ -145,11 +143,11 @@ class MessageHistory {
 const messageHistory = new MessageHistory();
 
 // order matters here
-const sendSSEMessage = (
+function sendSSEMessage(
   channelName: string,
   eventName: string,
   data = {},
-) => {
+) {
   // create a message
   const message: TMessage = {
     event: eventName,
@@ -162,9 +160,7 @@ const sendSSEMessage = (
 
   // fire it off
   eventEmitter.emit(channelName, message);
-};
+}
 
 // export default fastifyPlugin;
 export { fastifyPlugin, sendSSEMessage };
-
-export { Client } from "./client";
