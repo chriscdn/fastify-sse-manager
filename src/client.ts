@@ -29,6 +29,7 @@ class Client<T> {
   close() {
     this.eventSource?.close();
     this.eventSource = null;
+    this._callbacks = {};
   }
 
   addEventListener<T>(

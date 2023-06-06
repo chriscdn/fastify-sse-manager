@@ -66,18 +66,26 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
         signal: abortController.signal,
       });
 
-      console.log("OK");
+      // console.log("OK");
+
+      console.log("*************");
+      console.log("SSE SOCKET CLOSE STILL DOESN'T WORK!!");
+      console.log("*************");
 
       reply.raw.on("close", () => {
-        console.log("*****on close2 never called!");
+        console.log("*************");
+        console.log("close1");
+        console.log("*************");
         // abortController.abort();
       });
 
       // https://github.com/NodeFactoryIo/fastify-sse-v2
-      // request.socket.on("close", () => {
-      //   console.log("***** on close");
-      //   // abortController.abort();
-      // });
+      request.socket.on("close", () => {
+        console.log("*************");
+        console.log("close2");
+        console.log("*************");
+        // abortController.abort();
+      });
 
       reply.sse(
         (async function* () {
