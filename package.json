@@ -1,6 +1,6 @@
 {
   "name": "@chriscdn/fastify-sse-manager",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "license": "MIT",
   "main": "./lib/fastify-plugin.js",
   "scripts": {
@@ -10,17 +10,17 @@
     "example-debug": "node --inspect-brk ./example/index.js"
   },
   "dependencies": {
-    "fastify-sse-v2": "^3.1.0"
+    "fastify-sse-v2": "^3.1.1"
   },
   "devDependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^2.2.2",
     "@types/events": "^3.0.0",
-    "@types/node": "^20.2.3",
-    "fastify": "^4.17.0",
+    "@types/node": "^20.3.3",
+    "fastify": "^4.19.2",
     "fastify-static": "^4.7.0",
-    "json-schema-to-ts": "^2.8.2",
+    "json-schema-to-ts": "^2.9.1",
     "nodemon": "^2.0.22",
-    "typescript": "^5.0.4"
+    "typescript": "^5.1.6"
   },
   "exports": {
     ".": "./lib/fastify-plugin.js",
