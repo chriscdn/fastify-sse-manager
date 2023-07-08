@@ -1,17 +1,14 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext", "dom"],
-    "module": "ESNext",
     "target": "ESNext",
-    "strict": true,
-    "esModuleInterop": true,
+    "lib": ["dom", "ESNext"],
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "nodenext",
-    "skipLibCheck": true,
+    "strict": true,
     "sourceMap": true,
-    "rootDir": "./src",
-    "outDir": "./lib",
-    "declaration": true
+    "declaration": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "NodeNext",
+    "module": "esnext"
   },
   "include": ["./src/**/*"]
 }

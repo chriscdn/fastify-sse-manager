@@ -3,7 +3,7 @@ import type { FastifyPluginCallback, FastifyPluginOptions } from "fastify";
 import { type JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import FastifySSEPlugin from "fastify-sse-v2";
 
-const eventEmitter = new EventEmitter();
+const eventEmitter: EventEmitter = new EventEmitter();
 
 type TOptions = FastifyPluginOptions & {
   schema?: Record<string, any>;
