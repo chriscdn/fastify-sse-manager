@@ -15,7 +15,7 @@ type TOptions = FastifyPluginOptions & {
 const fastifyPlugin: FastifyPluginCallback<TOptions> = (
   fastifyInstance,
   opts,
-  done,
+  done
 ) => {
   const server = fastifyInstance.withTypeProvider<JsonSchemaToTsProvider>();
 
@@ -57,7 +57,7 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
 
       const missedMessages = messageHistory.messageHistoryForChannel(
         channel,
-        lastEventId,
+        lastEventId
       );
 
       const abortController = new AbortController();
@@ -66,26 +66,15 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
         signal: abortController.signal,
       });
 
-      // console.log("OK");
-
-      console.log("*************");
-      console.log("SSE SOCKET CLOSE STILL DOESN'T WORK!!");
-      console.log("*************");
-
-      reply.raw.on("close", () => {
-        console.log("*************");
-        console.log("close1");
-        console.log("*************");
-        // abortController.abort();
-      });
-
       // https://github.com/NodeFactoryIo/fastify-sse-v2
       request.socket.on("close", () => {
         console.log("*************");
-        console.log("close2");
+        console.log("close called");
         console.log("*************");
-        // abortController.abort();
+        abortController.abort();
       });
+
+      // request.socket.on("close", () => abortController.abort());
 
       reply.sse(
         (async function* () {
@@ -94,13 +83,20 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
             yield missedMessage;
           }
 
-          // https://nodejs.org/api/events.html#eventsonemitter-eventname-options
-          for await (const events of aIter) {
+          //nodejs.org/api/events.html#eventsonemitter-eventname-options
+          https: for await (const events of aIter) {
             for (let event of events) {
               yield event;
             }
           }
-        })(),
+
+          // for await (const [event] of on(eventEmitter, "update")) {
+          //   yield {
+          //     event: event.name,
+          //     data: JSON.stringify(event),
+          //   };
+          // }
+        })()
       );
 
       // here we want to somehow broadcast or notify that a connection was made
@@ -128,18 +124,18 @@ type TMessageHistoryItem = {
 class MessageHistory {
   constructor(
     private messageHistory: Array<TMessageHistoryItem> = [],
-    private lastId: number = 0,
+    private lastId: number = 0
   ) {}
 
   messageHistoryForChannel(
     channelName: string,
-    lastEventId: number | undefined,
+    lastEventId: number | undefined
   ) {
     return lastEventId !== undefined
       ? this.messageHistory
-        .filter((item) => item.channelName === channelName)
-        .filter((item) => item.id > lastEventId)
-        .map((item) => item.message)
+          .filter((item) => item.channelName === channelName)
+          .filter((item) => item.id > lastEventId)
+          .map((item) => item.message)
       : [];
   }
 
@@ -159,11 +155,7 @@ class MessageHistory {
 const messageHistory = new MessageHistory();
 
 // order matters here
-function sendSSEMessage(
-  channelName: string,
-  eventName: string,
-  data = {},
-) {
+function sendSSEMessage(channelName: string, eventName: string, data = {}) {
   // create a message
   const message: TMessage = {
     event: eventName,

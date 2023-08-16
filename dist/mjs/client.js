@@ -3,6 +3,7 @@ class Client {
     eventSource;
     _callbacks;
     constructor(path) {
+        //}, private channel: string) {
         // const fullPath: string = urljoin(path, channel);
         this.path = path;
         this.eventSource = new EventSource(path);

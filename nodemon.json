@@ -1,5 +1,5 @@
 {
   "watch": ["src"],
   "ext": "ts,json",
-  "exec": "tsc -p tsconfig.json"
+  "exec": "tsc -p tsconfig-cjs.json && tsc -p tsconfig-esm.json"
 }

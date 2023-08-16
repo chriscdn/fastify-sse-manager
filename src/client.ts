@@ -2,7 +2,8 @@ class Client<T> {
   private eventSource: EventSource | null;
   private _callbacks: Record<string, any>;
 
-  constructor(private path: string) { //}, private channel: string) {
+  constructor(private path: string) {
+    //}, private channel: string) {
     // const fullPath: string = urljoin(path, channel);
 
     this.eventSource = new EventSource(path);
@@ -34,9 +35,7 @@ class Client<T> {
 
   addEventListener<T>(
     eventName: string,
-    _callback: (
-      { type, data }: { type: string; data: T },
-    ) => void,
+    _callback: ({ type, data }: { type: string; data: T }) => void
   ) {
     const callback = (event: MessageEvent) => {
       const type: string = event.type;

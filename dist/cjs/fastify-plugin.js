@@ -1,8 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendSSEMessage = exports.fastifyPlugin = void 0;
 const events_1 = require("events");
-const fastify_sse_v2_1 = require("fastify-sse-v2");
+const fastify_sse_v2_1 = __importDefault(require("fastify-sse-v2"));
 const eventEmitter = new events_1.EventEmitter();
 // https://seg.phault.net/blog/2018/03/async-iterators-cancellation/
 const fastifyPlugin = (fastifyInstance, opts, done) => {
@@ -43,34 +46,31 @@ const fastifyPlugin = (fastifyInstance, opts, done) => {
             const aIter = (0, events_1.on)(eventEmitter, channel, {
                 signal: abortController.signal,
             });
-            // console.log("OK");
-            console.log("*************");
-            console.log("SSE SOCKET CLOSE STILL DOESN'T WORK!!");
-            console.log("*************");
-            reply.raw.on("close", () => {
-                console.log("*************");
-                console.log("close1");
-                console.log("*************");
-                // abortController.abort();
-            });
             // https://github.com/NodeFactoryIo/fastify-sse-v2
             request.socket.on("close", () => {
                 console.log("*************");
-                console.log("close2");
+                console.log("close called");
                 console.log("*************");
-                // abortController.abort();
+                abortController.abort();
             });
+            // request.socket.on("close", () => abortController.abort());
             reply.sse((async function* () {
                 // yield all missed messages based on lastEventId
                 for (const missedMessage of missedMessages) {
                     yield missedMessage;
                 }
-                // https://nodejs.org/api/events.html#eventsonemitter-eventname-options
-                for await (const events of aIter) {
+                //nodejs.org/api/events.html#eventsonemitter-eventname-options
+                https: for await (const events of aIter) {
                     for (let event of events) {
                         yield event;
                     }
                 }
+                // for await (const [event] of on(eventEmitter, "update")) {
+                //   yield {
+                //     event: event.name,
+                //     data: JSON.stringify(event),
+                //   };
+                // }
             })());
             // here we want to somehow broadcast or notify that a connection was made
             if (opts?.didRegisterToChannel) {

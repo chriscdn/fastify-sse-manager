@@ -40,34 +40,31 @@ const fastifyPlugin = (fastifyInstance, opts, done) => {
             const aIter = on(eventEmitter, channel, {
                 signal: abortController.signal,
             });
-            // console.log("OK");
-            console.log("*************");
-            console.log("SSE SOCKET CLOSE STILL DOESN'T WORK!!");
-            console.log("*************");
-            reply.raw.on("close", () => {
-                console.log("*************");
-                console.log("close1");
-                console.log("*************");
-                // abortController.abort();
-            });
             // https://github.com/NodeFactoryIo/fastify-sse-v2
             request.socket.on("close", () => {
                 console.log("*************");
-                console.log("close2");
+                console.log("close called");
                 console.log("*************");
-                // abortController.abort();
+                abortController.abort();
             });
+            // request.socket.on("close", () => abortController.abort());
             reply.sse((async function* () {
                 // yield all missed messages based on lastEventId
                 for (const missedMessage of missedMessages) {
                     yield missedMessage;
                 }
-                // https://nodejs.org/api/events.html#eventsonemitter-eventname-options
-                for await (const events of aIter) {
+                //nodejs.org/api/events.html#eventsonemitter-eventname-options
+                https: for await (const events of aIter) {
                     for (let event of events) {
                         yield event;
                     }
                 }
+                // for await (const [event] of on(eventEmitter, "update")) {
+                //   yield {
+                //     event: event.name,
+                //     data: JSON.stringify(event),
+                //   };
+                // }
             })());
             // here we want to somehow broadcast or notify that a connection was made
             if (opts?.didRegisterToChannel) {
