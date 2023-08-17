@@ -62,19 +62,26 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
 
       const abortController = new AbortController();
 
-      const aIter = on(eventEmitter, channel, {
-        signal: abortController.signal,
-      });
-
       // https://github.com/NodeFactoryIo/fastify-sse-v2
       request.socket.on("close", () => {
         console.log("*************");
-        console.log("close called");
+        console.log("SSE Request Closed");
         console.log("*************");
+
         abortController.abort();
       });
 
-      // request.socket.on("close", () => abortController.abort());
+      /**
+       * This needs to be called after the response is made.  Placing it after
+       * reply.sse(), however, makes it inaccessible.
+       *
+       * We use a `setTimeout` to get around that.
+       */
+      setTimeout(() => {
+        if (opts?.didRegisterToChannel) {
+          opts.didRegisterToChannel(channel);
+        }
+      });
 
       reply.sse(
         (async function* () {
@@ -83,11 +90,18 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
             yield missedMessage;
           }
 
-          //nodejs.org/api/events.html#eventsonemitter-eventname-options
-          https: for await (const events of aIter) {
-            for (let event of events) {
-              yield event;
+          // nodejs.org/api/events.html#eventsonemitter-eventname-options
+
+          try {
+            for await (const events of on(eventEmitter, channel, {
+              signal: abortController.signal,
+            })) {
+              for (let event of events) {
+                yield event;
+              }
             }
+          } catch {
+            // console.log("boooooo");
           }
 
           // for await (const [event] of on(eventEmitter, "update")) {
@@ -100,9 +114,6 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
       );
 
       // here we want to somehow broadcast or notify that a connection was made
-      if (opts?.didRegisterToChannel) {
-        opts.didRegisterToChannel(channel);
-      }
     },
   });
 
