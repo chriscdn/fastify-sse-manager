@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendSSEMessage = exports.fastifyPlugin = void 0;
-const events_1 = require("events");
+const node_events_1 = require("node:events");
 const fastify_sse_v2_1 = __importDefault(require("fastify-sse-v2"));
-const eventEmitter = new events_1.EventEmitter();
+const eventEmitter = new node_events_1.EventEmitter();
 // https://seg.phault.net/blog/2018/03/async-iterators-cancellation/
 const fastifyPlugin = (fastifyInstance, opts, done) => {
     const server = fastifyInstance.withTypeProvider();
@@ -44,6 +44,9 @@ const fastifyPlugin = (fastifyInstance, opts, done) => {
             const missedMessages = messageHistory.messageHistoryForChannel(channel, lastEventId);
             const abortController = new AbortController();
             // https://github.com/NodeFactoryIo/fastify-sse-v2
+            //
+            // This doesn't get called when running Vue in dev mode.  Production is
+            // fine.
             request.socket.on("close", () => {
                 console.log("*************");
                 console.log("SSE Request Closed");
@@ -56,11 +59,11 @@ const fastifyPlugin = (fastifyInstance, opts, done) => {
              *
              * We use a `setTimeout` to get around that.
              */
-            setTimeout(() => {
-                if (opts?.didRegisterToChannel) {
+            if (opts?.didRegisterToChannel) {
+                setTimeout(() => {
                     opts.didRegisterToChannel(channel);
-                }
-            });
+                });
+            }
             reply.sse((async function* () {
                 // yield all missed messages based on lastEventId
                 for (const missedMessage of missedMessages) {
@@ -68,7 +71,7 @@ const fastifyPlugin = (fastifyInstance, opts, done) => {
                 }
                 // nodejs.org/api/events.html#eventsonemitter-eventname-options
                 try {
-                    for await (const events of (0, events_1.on)(eventEmitter, channel, {
+                    for await (const events of (0, node_events_1.on)(eventEmitter, channel, {
                         signal: abortController.signal,
                     })) {
                         for (let event of events) {

@@ -1,5 +1,12 @@
-import { EventEmitter, on } from "events";
-import type { FastifyPluginCallback, FastifyPluginOptions } from "fastify";
+import { EventEmitter, on } from "node:events";
+
+import type {
+  FastifyBaseLogger,
+  FastifyPluginCallback,
+  FastifyPluginOptions,
+  FastifyTypeProvider,
+  RawServerDefault,
+} from "fastify";
 import { type JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import FastifySSEPlugin from "fastify-sse-v2";
 
@@ -12,11 +19,12 @@ type TOptions = FastifyPluginOptions & {
 };
 
 // https://seg.phault.net/blog/2018/03/async-iterators-cancellation/
-const fastifyPlugin: FastifyPluginCallback<TOptions> = (
-  fastifyInstance,
-  opts,
-  done
-) => {
+const fastifyPlugin: FastifyPluginCallback<
+  TOptions,
+  RawServerDefault,
+  FastifyTypeProvider,
+  FastifyBaseLogger
+> = (fastifyInstance, opts, done) => {
   const server = fastifyInstance.withTypeProvider<JsonSchemaToTsProvider>();
 
   // This might be a problem if imported multiple times?
@@ -63,6 +71,9 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
       const abortController = new AbortController();
 
       // https://github.com/NodeFactoryIo/fastify-sse-v2
+      //
+      // This doesn't get called when running Vue in dev mode.  Production is
+      // fine.
       request.socket.on("close", () => {
         console.log("*************");
         console.log("SSE Request Closed");
@@ -77,11 +88,11 @@ const fastifyPlugin: FastifyPluginCallback<TOptions> = (
        *
        * We use a `setTimeout` to get around that.
        */
-      setTimeout(() => {
-        if (opts?.didRegisterToChannel) {
-          opts.didRegisterToChannel(channel);
-        }
-      });
+      if (opts?.didRegisterToChannel) {
+        setTimeout(() => {
+          opts.didRegisterToChannel!(channel);
+        });
+      }
 
       reply.sse(
         (async function* () {

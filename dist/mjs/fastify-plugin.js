@@ -1,4 +1,4 @@
-import { EventEmitter, on } from "events";
+import { EventEmitter, on } from "node:events";
 import FastifySSEPlugin from "fastify-sse-v2";
 const eventEmitter = new EventEmitter();
 // https://seg.phault.net/blog/2018/03/async-iterators-cancellation/
@@ -38,6 +38,9 @@ const fastifyPlugin = (fastifyInstance, opts, done) => {
             const missedMessages = messageHistory.messageHistoryForChannel(channel, lastEventId);
             const abortController = new AbortController();
             // https://github.com/NodeFactoryIo/fastify-sse-v2
+            //
+            // This doesn't get called when running Vue in dev mode.  Production is
+            // fine.
             request.socket.on("close", () => {
                 console.log("*************");
                 console.log("SSE Request Closed");
@@ -50,11 +53,11 @@ const fastifyPlugin = (fastifyInstance, opts, done) => {
              *
              * We use a `setTimeout` to get around that.
              */
-            setTimeout(() => {
-                if (opts?.didRegisterToChannel) {
+            if (opts?.didRegisterToChannel) {
+                setTimeout(() => {
                     opts.didRegisterToChannel(channel);
-                }
-            });
+                });
+            }
             reply.sse((async function* () {
                 // yield all missed messages based on lastEventId
                 for (const missedMessage of missedMessages) {
