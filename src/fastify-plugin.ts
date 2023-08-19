@@ -1,4 +1,4 @@
-import { EventEmitter, on } from "node:events";
+import { EventEmitter, on } from "events";
 
 import type {
   FastifyBaseLogger,
