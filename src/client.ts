@@ -2,19 +2,26 @@ class Client<T> {
   private eventSource: EventSource | null;
   private _callbacks: Record<string, any>;
 
-  constructor(private path: string) {
-    //}, private channel: string) {
-    // const fullPath: string = urljoin(path, channel);
+  private onOpenBound: (event: MessageEvent) => void;
+  private onErrorBound: (event: MessageEvent) => void;
+  private closeBound: (event: MessageEvent) => void;
 
+  constructor(path: string) {
     this.eventSource = new EventSource(path);
-    // this.channel = channel;
+
+    this.onOpenBound = this.onOpen.bind(this);
+    this.onErrorBound = this.onError.bind(this);
+    this.closeBound = this.close.bind(this);
 
     // open and error are reserved
-    this.eventSource.addEventListener("open", this.onOpen.bind(this));
-    this.eventSource.addEventListener("error", this.onError.bind(this));
+    this.eventSource.addEventListener("open", this.onOpenBound);
+    this.eventSource.addEventListener("error", this.onErrorBound);
 
     // close is a standard message, hijacked for our purposes
-    this.eventSource.addEventListener("close", this.close.bind(this));
+    this.eventSource.addEventListener(
+      "close",
+      this.closeBound,
+    );
 
     // keep record of our callback functions to make them available to removeEventListener
     this._callbacks = {};
@@ -28,9 +35,17 @@ class Client<T> {
   }
 
   close() {
-    this.eventSource?.close();
-    this.eventSource = null;
-    this._callbacks = {};
+    // close and cleanup
+    if (this.eventSource) {
+      this.eventSource.removeEventListener("open", this.onOpenBound);
+      this.eventSource.removeEventListener("error", this.onErrorBound);
+      this.eventSource.removeEventListener("close", this.closeBound);
+      this.removeAllEventListener();
+      this.eventSource?.close();
+      this.eventSource = null;
+      this._callbacks = {};
+      this.eventSource = null;
+    }
   }
 
   addEventListener<T>(
@@ -47,7 +62,7 @@ class Client<T> {
       });
     };
 
-    // Only one listenter at a time.  If a second is needed, then change the code and document why.
+    // Only one listenter at a time per event.  If a second is needed, then change the code and document why.
     this.removeEventListener(eventName);
 
     this._callbacks[eventName] = callback;
@@ -62,6 +77,12 @@ class Client<T> {
       this.eventSource?.removeEventListener(eventName, callback);
       delete this._callbacks[eventName];
     }
+  }
+
+  removeAllEventListener() {
+    Object.keys(this._callbacks).forEach((callbackName) =>
+      this.removeEventListener(callbackName)
+    );
   }
 }
 

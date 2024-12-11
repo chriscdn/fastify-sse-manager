@@ -1,7 +1,9 @@
 declare class Client<T> {
-    private path;
     private eventSource;
     private _callbacks;
+    private onOpenBound;
+    private onErrorBound;
+    private closeBound;
     constructor(path: string);
     onOpen(event: MessageEvent): void;
     onError(event: MessageEvent): void;
@@ -11,5 +13,6 @@ declare class Client<T> {
         data: T;
     }) => void): void;
     removeEventListener(eventName: string): void;
+    removeAllEventListener(): void;
 }
 export { Client };
