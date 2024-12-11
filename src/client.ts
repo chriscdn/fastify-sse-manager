@@ -41,9 +41,8 @@ class Client<T> {
       this.eventSource.removeEventListener("error", this.onErrorBound);
       this.eventSource.removeEventListener("close", this.closeBound);
       this.removeAllEventListener();
-      this.eventSource?.close();
-      this.eventSource = null;
-      this._callbacks = {};
+      // this._callbacks = {};
+      this.eventSource.close();
       this.eventSource = null;
     }
   }
