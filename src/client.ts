@@ -35,7 +35,7 @@ class Client<T> {
 
   addEventListener<T>(
     eventName: string,
-    _callback: ({ type, data }: { type: string; data: T }) => void
+    _callback: ({ type, data }: { type: string; data: T }) => void,
   ) {
     const callback = (event: MessageEvent) => {
       const type: string = event.type;

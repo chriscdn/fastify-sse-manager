@@ -65,7 +65,7 @@ const fastifyPlugin: FastifyPluginCallback<
 
       const missedMessages = messageHistory.messageHistoryForChannel(
         channel,
-        lastEventId
+        lastEventId,
       );
 
       const abortController = new AbortController();
@@ -104,9 +104,11 @@ const fastifyPlugin: FastifyPluginCallback<
           // nodejs.org/api/events.html#eventsonemitter-eventname-options
 
           try {
-            for await (const events of on(eventEmitter, channel, {
-              signal: abortController.signal,
-            })) {
+            for await (
+              const events of on(eventEmitter, channel, {
+                signal: abortController.signal,
+              })
+            ) {
               for (let event of events) {
                 yield event;
               }
@@ -121,7 +123,7 @@ const fastifyPlugin: FastifyPluginCallback<
           //     data: JSON.stringify(event),
           //   };
           // }
-        })()
+        })(),
       );
 
       // here we want to somehow broadcast or notify that a connection was made
@@ -146,18 +148,18 @@ type TMessageHistoryItem = {
 class MessageHistory {
   constructor(
     private messageHistory: Array<TMessageHistoryItem> = [],
-    private lastId: number = 0
+    private lastId: number = 0,
   ) {}
 
   messageHistoryForChannel(
     channelName: string,
-    lastEventId: number | undefined
+    lastEventId: number | undefined,
   ) {
     return lastEventId !== undefined
       ? this.messageHistory
-          .filter((item) => item.channelName === channelName)
-          .filter((item) => item.id > lastEventId)
-          .map((item) => item.message)
+        .filter((item) => item.channelName === channelName)
+        .filter((item) => item.id > lastEventId)
+        .map((item) => item.message)
       : [];
   }
 

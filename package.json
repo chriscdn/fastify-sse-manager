@@ -2,12 +2,27 @@
   "name": "@chriscdn/fastify-sse-manager",
   "version": "0.0.11",
   "license": "MIT",
-  "main": "./lib/cjs/index.js",
-  "module": "./lib/mjs/index.js",
+  "type": "module",
+  "___source": "./src/index.ts",
+  "__main": "./lib/fastify-sse.cjs",
+  "___module": "./lib/fastify-sse.module.js",
+  "__unpkg": "./lib/fastify-sse.umd.js",
+  "exports": {
+    "./server": {
+      "types": "./lib/server.d.ts",
+      "require": "./lib/server.cjs",
+      "default": "./lib/server.esm.js"
+    },
+    "./client": {
+      "types": "./lib/client.d.ts",
+      "require": "./lib/client.cjs",
+      "default": "./lib/client.esm.js"
+    }
+  },
+  "___types": "./lib/index.d.ts",
   "scripts": {
-    "build--old": "rm -rf ./lib && tsc -p tsconfig.json",
-    "build": "rm -rf ./lib/ && tsc -p tsconfig-cjs.json && tsc -p tsconfig-esm.json",
-    "watch": "nodemon",
+    "build": "rm -rf ./lib/ && microbundle --entry ./src/server.ts --output lib/server.js --format modern,esm,cjs --target node && microbundle --entry ./src/client.ts --output lib/client.js --format modern,esm,cjs --target browser",
+    "dev": "microbundle watch",
     "example": "nodemon ./example/index.js",
     "example-debug": "node --inspect-brk ./example/index.js"
   },
@@ -16,12 +31,12 @@
   },
   "devDependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^2.2.2",
-    "@types/events": "^3.0.0",
-    "@types/node": "^20.5.0",
-    "fastify": "^4.21.0",
+    "@types/events": "^3.0.3",
+    "@types/node": "^22.10.1",
+    "fastify": "4.28.1",
     "fastify-static": "^4.7.0",
     "json-schema-to-ts": "^2.9.2",
-    "nodemon": "^3.0.1",
+    "microbundle": "^0.15.1",
     "typescript": "^5.1.6"
   }
 }
