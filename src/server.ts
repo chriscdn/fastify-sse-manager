@@ -104,11 +104,9 @@ const fastifyPlugin: FastifyPluginCallback<
           // nodejs.org/api/events.html#eventsonemitter-eventname-options
 
           try {
-            for await (
-              const events of on(eventEmitter, channel, {
-                signal: abortController.signal,
-              })
-            ) {
+            for await (const events of on(eventEmitter, channel, {
+              signal: abortController.signal,
+            })) {
               for (let event of events) {
                 yield event;
               }
@@ -116,13 +114,6 @@ const fastifyPlugin: FastifyPluginCallback<
           } catch {
             // console.log("boooooo");
           }
-
-          // for await (const [event] of on(eventEmitter, "update")) {
-          //   yield {
-          //     event: event.name,
-          //     data: JSON.stringify(event),
-          //   };
-          // }
         })(),
       );
 
@@ -157,9 +148,9 @@ class MessageHistory {
   ) {
     return lastEventId !== undefined
       ? this.messageHistory
-        .filter((item) => item.channelName === channelName)
-        .filter((item) => item.id > lastEventId)
-        .map((item) => item.message)
+          .filter((item) => item.channelName === channelName)
+          .filter((item) => item.id > lastEventId)
+          .map((item) => item.message)
       : [];
   }
 
@@ -179,7 +170,11 @@ class MessageHistory {
 const messageHistory = new MessageHistory();
 
 // order matters here
-function sendSSEMessage(channelName: string, eventName: string, data = {}) {
+const sendSSEMessage = <T = unknown>(
+  channelName: string,
+  eventName: string,
+  data: T = null as T,
+) => {
   // create a message
   const message: TMessage = {
     event: eventName,
@@ -192,7 +187,9 @@ function sendSSEMessage(channelName: string, eventName: string, data = {}) {
 
   // fire it off
   eventEmitter.emit(channelName, message);
-}
+  return message;
+};
 
+// console.log("HELLO WoRLD");
 // export default fastifyPlugin;
 export { fastifyPlugin, sendSSEMessage };

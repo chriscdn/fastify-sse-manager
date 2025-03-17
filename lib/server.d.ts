@@ -5,5 +5,10 @@ type TOptions = FastifyPluginOptions & {
     didRegisterToChannel?: (channel: string) => void;
 };
 declare const fastifyPlugin: FastifyPluginCallback<TOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>;
-declare function sendSSEMessage(channelName: string, eventName: string, data?: {}): void;
+type TMessage = {
+    event: string;
+    data: string;
+    id: number;
+};
+declare const sendSSEMessage: <T = unknown>(channelName: string, eventName: string, data?: T) => TMessage;
 export { fastifyPlugin, sendSSEMessage };
