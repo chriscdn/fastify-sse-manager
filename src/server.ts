@@ -4,6 +4,7 @@ import {
   type FastifyBaseLogger,
   type FastifyPluginCallback,
   type FastifyPluginOptions,
+  FastifyRequest,
   type FastifyTypeProvider,
   type RawServerDefault,
 } from "fastify";
@@ -17,7 +18,10 @@ type TOptions = FastifyPluginOptions & {
   schema?: Record<string, any>;
   preHandler?: any;
   didRegisterToChannel?: (channel: string) => void;
-  canRegisterToChannel?: (channel: string) => Promise<boolean> | boolean;
+  canRegisterToChannel?: (
+    request: FastifyRequest,
+    channel: string,
+  ) => Promise<boolean> | boolean;
 };
 
 // https://seg.phault.net/blog/2018/03/async-iterators-cancellation/
@@ -66,7 +70,7 @@ const fastifyPlugin: FastifyPluginCallback<
       const didRegisterToChannel = opts?.didRegisterToChannel ?? (() => null);
       const canRegisterToChannel = opts?.canRegisterToChannel ?? (() => true);
 
-      if (await canRegisterToChannel(channel)) {
+      if (await canRegisterToChannel(request, channel)) {
         const missedMessages = messageHistory.messageHistoryForChannel(
           channel,
           lastEventId,
