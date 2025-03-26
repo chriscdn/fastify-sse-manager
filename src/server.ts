@@ -1,12 +1,13 @@
 import { EventEmitter, on } from "events";
 
-import type {
-  FastifyBaseLogger,
-  FastifyPluginCallback,
-  FastifyPluginOptions,
-  FastifyTypeProvider,
-  RawServerDefault,
+import {
+  type FastifyBaseLogger,
+  type FastifyPluginCallback,
+  type FastifyPluginOptions,
+  type FastifyTypeProvider,
+  type RawServerDefault,
 } from "fastify";
+
 import { type JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import FastifySSEPlugin from "fastify-sse-v2";
 
@@ -16,6 +17,7 @@ type TOptions = FastifyPluginOptions & {
   schema?: Record<string, any>;
   preHandler?: any;
   didRegisterToChannel?: (channel: string) => void;
+  canRegisterToChannel?: (channel: string) => Promise<boolean> | boolean;
 };
 
 // https://seg.phault.net/blog/2018/03/async-iterators-cancellation/
@@ -29,7 +31,6 @@ const fastifyPlugin: FastifyPluginCallback<
 
   // This might be a problem if imported multiple times?
 
-  // @ts-ignore
   server.register(FastifySSEPlugin);
 
   server.get("/:channel", {
@@ -59,65 +60,68 @@ const fastifyPlugin: FastifyPluginCallback<
 
     preHandler: opts.preHandler ?? [],
 
-    handler(request, reply) {
-      const channel: string = request.params.channel;
+    async handler(request, reply) {
+      const channel = request.params.channel;
       const lastEventId: number | undefined = request.headers["last-event-id"];
+      const didRegisterToChannel = opts?.didRegisterToChannel ?? (() => null);
+      const canRegisterToChannel = opts?.canRegisterToChannel ?? (() => true);
 
-      const missedMessages = messageHistory.messageHistoryForChannel(
-        channel,
-        lastEventId,
-      );
+      if (await canRegisterToChannel(channel)) {
+        const missedMessages = messageHistory.messageHistoryForChannel(
+          channel,
+          lastEventId,
+        );
 
-      const abortController = new AbortController();
+        const abortController = new AbortController();
 
-      // https://github.com/NodeFactoryIo/fastify-sse-v2
-      //
-      // This doesn't get called when running Vue in dev mode.  Production is
-      // fine.
-      request.socket.on("close", () => {
-        console.log("*************");
-        console.log("SSE Request Closed");
-        console.log("*************");
+        // https://github.com/NodeFactoryIo/fastify-sse-v2
+        //
+        // This doesn't get called when running Vue in dev mode.  Production is
+        // fine.
+        request.socket.on("close", () => {
+          console.log("*************");
+          console.log("SSE Request Closed");
+          console.log("*************");
 
-        abortController.abort();
-      });
-
-      /**
-       * This needs to be called after the response is made.  Placing it after
-       * reply.sse(), however, makes it inaccessible.
-       *
-       * We use a `setTimeout` to get around that.
-       */
-      if (opts?.didRegisterToChannel) {
-        setTimeout(() => {
-          opts.didRegisterToChannel!(channel);
+          abortController.abort();
         });
-      }
 
-      reply.sse(
-        (async function* () {
-          // yield all missed messages based on lastEventId
-          for (const missedMessage of missedMessages) {
-            yield missedMessage;
-          }
+        /**
+         * This needs to be called after the response is made.  Placing it after
+         * reply.sse(), however, makes it inaccessible.
+         *
+         * We use a `setTimeout` to get around that.
+         */
 
-          // nodejs.org/api/events.html#eventsonemitter-eventname-options
+        setTimeout(() => didRegisterToChannel(channel));
 
-          try {
-            for await (const events of on(eventEmitter, channel, {
-              signal: abortController.signal,
-            })) {
-              for (let event of events) {
-                yield event;
-              }
+        reply.sse(
+          (async function* () {
+            // yield all missed messages based on lastEventId
+            for (const missedMessage of missedMessages) {
+              yield missedMessage;
             }
-          } catch {
-            // console.log("boooooo");
-          }
-        })(),
-      );
 
-      // here we want to somehow broadcast or notify that a connection was made
+            // nodejs.org/api/events.html#eventsonemitter-eventname-options
+
+            try {
+              for await (
+                const events of on(eventEmitter, channel, {
+                  signal: abortController.signal,
+                })
+              ) {
+                for (let event of events) {
+                  yield event;
+                }
+              }
+            } catch {
+              // console.log("boooooo");
+            }
+          })(),
+        );
+      } else {
+        return reply.code(400).send({ error: "Bad Request" });
+      }
     },
   });
 
@@ -148,9 +152,9 @@ class MessageHistory {
   ) {
     return lastEventId !== undefined
       ? this.messageHistory
-          .filter((item) => item.channelName === channelName)
-          .filter((item) => item.id > lastEventId)
-          .map((item) => item.message)
+        .filter((item) => item.channelName === channelName)
+        .filter((item) => item.id > lastEventId)
+        .map((item) => item.message)
       : [];
   }
 

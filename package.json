@@ -1,6 +1,6 @@
 {
   "name": "@chriscdn/fastify-sse-manager",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -28,8 +28,8 @@
   "devDependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
     "@types/events": "^3.0.3",
-    "@types/node": "^22.13.10",
-    "fastify": "5.2.1",
+    "@types/node": "^22.13.13",
+    "fastify": "5.2.2",
     "fastify-static": "^4.7.0",
     "json-schema-to-ts": "^3.1.1",
     "microbundle": "^0.15.1",

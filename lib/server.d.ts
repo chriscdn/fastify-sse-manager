@@ -1,8 +1,9 @@
-import type { FastifyBaseLogger, FastifyPluginCallback, FastifyPluginOptions, FastifyTypeProvider, RawServerDefault } from "fastify";
+import { type FastifyBaseLogger, type FastifyPluginCallback, type FastifyPluginOptions, type FastifyTypeProvider, type RawServerDefault } from "fastify";
 type TOptions = FastifyPluginOptions & {
     schema?: Record<string, any>;
     preHandler?: any;
     didRegisterToChannel?: (channel: string) => void;
+    canRegisterToChannel?: (channel: string) => Promise<boolean> | boolean;
 };
 declare const fastifyPlugin: FastifyPluginCallback<TOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>;
 type TMessage = {
