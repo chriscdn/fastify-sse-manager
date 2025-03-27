@@ -47,13 +47,16 @@ class Client<T> {
     }
   }
 
-  addEventListener<T>(
-    eventName: string,
-    _callback: ({ type, data }: { type: string; data: T }) => void,
+  addEventListener<
+    EMap extends Record<string, any>,
+    T extends keyof EMap & string,
+  >(
+    eventName: T,
+    _callback: ({ type, data }: { type: T; data: EMap[T] }) => void,
   ) {
     const callback = (event: MessageEvent) => {
-      const type: string = event.type;
-      const data: T = JSON.parse(event.data);
+      const type = event.type as T;
+      const data = JSON.parse(event.data);
 
       _callback({
         type,

@@ -8,9 +8,9 @@ declare class Client<T> {
     onOpen(event: MessageEvent): void;
     onError(event: MessageEvent): void;
     close(): void;
-    addEventListener<T>(eventName: string, _callback: ({ type, data }: {
-        type: string;
-        data: T;
+    addEventListener<EMap extends Record<string, any>, T extends keyof EMap & string>(eventName: T, _callback: ({ type, data }: {
+        type: T;
+        data: EMap[T];
     }) => void): void;
     removeEventListener(eventName: string): void;
     removeAllEventListener(): void;

@@ -11,5 +11,14 @@ type TMessage = {
     data: string;
     id: number;
 };
-declare const sendSSEMessage: <T = unknown>(channelName: string, eventName: string, data?: T) => TMessage;
+/**
+ * I struggled to make the eventName define the payload, but seems I need to
+ * explicity set it.
+ *
+ * @param channel
+ * @param eventName
+ * @param payload
+ * @returns
+ */
+declare const sendSSEMessage: <EMap extends Record<string, any>, T extends keyof EMap & string>(channel: string, eventName: T, payload: EMap[T]) => TMessage;
 export { fastifyPlugin, sendSSEMessage };

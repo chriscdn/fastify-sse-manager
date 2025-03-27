@@ -17,7 +17,10 @@ const eventEmitter: EventEmitter = new EventEmitter();
 type TOptions = FastifyPluginOptions & {
   schema?: Record<string, any>;
   preHandler?: any;
+
   didRegisterToChannel?: (channel: string) => void;
+  // This was added since preHandler doesn't have the correct augemented types
+  // on request.
   canRegisterToChannel?: (
     request: FastifyRequest,
     channel: string,
@@ -177,8 +180,41 @@ class MessageHistory {
 
 const messageHistory = new MessageHistory();
 
+/**
+ * I struggled to make the eventName define the payload, but seems I need to
+ * explicity set it.
+ *
+ * @param channel
+ * @param eventName
+ * @param payload
+ * @returns
+ */
+const sendSSEMessage = <
+  EMap extends Record<string, any>,
+  T extends keyof EMap & string,
+>(
+  channel: string,
+  eventName: T,
+  payload: EMap[T],
+) => {
+  // create a message
+  const message: TMessage = {
+    event: eventName,
+    data: JSON.stringify(payload),
+    id: messageHistory.nextId(),
+  };
+
+  // push it onto the history stack
+  messageHistory.push(channel, message);
+
+  // fire it off
+  eventEmitter.emit(channel, message);
+
+  return message;
+};
+
 // order matters here
-const sendSSEMessage = <T = unknown>(
+const __sendSSEMessage = <T = unknown>(
   channelName: string,
   eventName: string,
   data: T = null as T,
