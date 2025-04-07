@@ -4,13 +4,22 @@ import {
   type FastifyBaseLogger,
   type FastifyPluginCallback,
   type FastifyPluginOptions,
-  FastifyRequest,
+  type FastifyRequest,
   type FastifyTypeProvider,
   type RawServerDefault,
 } from "fastify";
 
 import { type JsonSchemaToTsProvider } from "@fastify/type-provider-json-schema-to-ts";
 import FastifySSEPlugin from "fastify-sse-v2";
+
+import {
+  ChannelManager,
+  MessageHistory,
+  type TMessage,
+} from "./utils/server-utils";
+
+const channelManager = new ChannelManager();
+const messageHistory = new MessageHistory();
 
 const eventEmitter: EventEmitter = new EventEmitter();
 
@@ -28,6 +37,14 @@ type TOptions = FastifyPluginOptions & {
 };
 
 // https://seg.phault.net/blog/2018/03/async-iterators-cancellation/
+
+/**
+ * A downside to this implementation is that `/route/a/<channel>` and
+ * `/route/b/<channel>` receive the same events when `<channel>` are the same.
+ *
+ * The best usage of this is to have a single connection per client, and
+ * differnet event listners attached to that one connection.
+ */
 const fastifyPlugin: FastifyPluginCallback<
   TOptions,
   RawServerDefault,
@@ -79,17 +96,25 @@ const fastifyPlugin: FastifyPluginCallback<
           lastEventId,
         );
 
+        const ua = request.headers["user-agent"];
+
+        const raw = reply.raw;
         const abortController = new AbortController();
 
-        // https://github.com/NodeFactoryIo/fastify-sse-v2
-        //
-        // This doesn't get called when running Vue in dev mode.  Production is
-        // fine.
+        channelManager.addClient(channel, raw);
+
+        console.log("*************");
+        console.log("SSE Request MADE");
+        console.log("UA: ", ua);
+        console.log("*************");
+
         request.socket.on("close", () => {
           console.log("*************");
           console.log("SSE Request Closed");
+          console.log("UA: ", ua);
           console.log("*************");
 
+          channelManager.removeClient(channel, raw);
           abortController.abort();
         });
 
@@ -135,51 +160,6 @@ const fastifyPlugin: FastifyPluginCallback<
   done();
 };
 
-type TMessage = {
-  event: string;
-  data: string;
-  id: number;
-};
-
-type TMessageHistoryItem = {
-  channelName: string;
-  id: number;
-  message: TMessage;
-};
-
-class MessageHistory {
-  constructor(
-    private messageHistory: Array<TMessageHistoryItem> = [],
-    private lastId: number = 0,
-  ) {}
-
-  messageHistoryForChannel(
-    channelName: string,
-    lastEventId: number | undefined,
-  ) {
-    return lastEventId !== undefined
-      ? this.messageHistory
-        .filter((item) => item.channelName === channelName)
-        .filter((item) => item.id > lastEventId)
-        .map((item) => item.message)
-      : [];
-  }
-
-  push(channelName: string, message: TMessage) {
-    this.messageHistory.push({ channelName, id: message.id, message });
-
-    // keep last 1000 messages.. make configurable
-    this.messageHistory = this.messageHistory.slice(-1000);
-  }
-
-  nextId() {
-    this.lastId += 1;
-    return this.lastId;
-  }
-}
-
-const messageHistory = new MessageHistory();
-
 /**
  * I struggled to make the eventName define the payload, but seems I need to
  * explicity set it.
@@ -213,27 +193,7 @@ const sendSSEMessage = <
   return message;
 };
 
-// order matters here
-const __sendSSEMessage = <T = unknown>(
-  channelName: string,
-  eventName: string,
-  data: T = null as T,
-) => {
-  // create a message
-  const message: TMessage = {
-    event: eventName,
-    data: JSON.stringify(data),
-    id: messageHistory.nextId(),
-  };
+const getConnectionCount = (channel: string) =>
+  channelManager.getConnectionCount(channel);
 
-  // push it onto the history stack
-  messageHistory.push(channelName, message);
-
-  // fire it off
-  eventEmitter.emit(channelName, message);
-  return message;
-};
-
-// console.log("HELLO WoRLD");
-// export default fastifyPlugin;
-export { fastifyPlugin, sendSSEMessage };
+export { fastifyPlugin, getConnectionCount, sendSSEMessage };

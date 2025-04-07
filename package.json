@@ -1,6 +1,6 @@
 {
   "name": "@chriscdn/fastify-sse-manager",
-  "version": "0.0.23",
+  "version": "0.0.25",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -18,21 +18,20 @@
   "___types": "./lib/index.d.ts",
   "scripts": {
     "build": "rm -rf ./lib/ && microbundle --entry ./src/server.ts --output lib/server.js --format modern,esm,cjs --target node && microbundle --entry ./src/client.ts --output lib/client.js --format modern,esm,cjs --target browser",
-    "dev": "microbundle watch",
-    "example": "nodemon ./example/index.js",
-    "example-debug": "node --inspect-brk ./example/index.js"
+    "dev": "microbundle watch"
   },
   "dependencies": {
-    "fastify-sse-v2": "^4.2.1"
+    "fastify-sse-v2": "^4.2.1",
+    "url-join": "^5.0.0"
   },
   "devDependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
     "@types/events": "^3.0.3",
-    "@types/node": "^22.13.13",
+    "@types/node": "^22.14.0",
     "fastify": "5.2.2",
     "fastify-static": "^4.7.0",
     "json-schema-to-ts": "^3.1.1",
     "microbundle": "^0.15.1",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   }
 }

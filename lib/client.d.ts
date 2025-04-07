@@ -1,17 +1,17 @@
-declare class Client<T> {
+declare class Client<EMap extends Record<string, any>> {
     private eventSource;
     private _callbacks;
     private onOpenBound;
     private onErrorBound;
     private closeBound;
-    constructor(path: string);
+    constructor(path: string, channel?: string);
     onOpen(event: MessageEvent): void;
     onError(event: MessageEvent): void;
     close(): void;
-    addEventListener<EMap extends Record<string, any>, T extends keyof EMap & string>(eventName: T, _callback: ({ type, data }: {
-        type: T;
-        data: EMap[T];
-    }) => void): void;
+    addEventListener<K extends keyof EMap & string>(eventName: K, _callback: (event: {
+        type: K;
+        data: EMap[K];
+    }) => void): () => void;
     removeEventListener(eventName: string): void;
     removeAllEventListener(): void;
 }

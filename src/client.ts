@@ -1,4 +1,6 @@
-class Client<T> {
+import urlJoin from "url-join";
+
+class Client<EMap extends Record<string, any>> {
   private eventSource: EventSource | null;
   private _callbacks: Record<string, any>;
 
@@ -6,8 +8,12 @@ class Client<T> {
   private onErrorBound: (event: MessageEvent) => void;
   private closeBound: (event: MessageEvent) => void;
 
-  constructor(path: string) {
-    this.eventSource = new EventSource(path);
+  constructor(path: string, channel?: string) {
+    const resolvedPath = channel ? urlJoin(path, channel) : path;
+
+    // console.log(`Connecting to: ${resolvedPath}`);
+
+    this.eventSource = new EventSource(resolvedPath);
 
     this.onOpenBound = this.onOpen.bind(this);
     this.onErrorBound = this.onError.bind(this);
@@ -47,29 +53,29 @@ class Client<T> {
     }
   }
 
-  addEventListener<
-    EMap extends Record<string, any>,
-    T extends keyof EMap & string,
-  >(
-    eventName: T,
-    _callback: ({ type, data }: { type: T; data: EMap[T] }) => void,
+  addEventListener<K extends keyof EMap & string>(
+    eventName: K,
+    _callback: (event: { type: K; data: EMap[K] }) => void,
   ) {
     const callback = (event: MessageEvent) => {
-      const type = event.type as T;
-      const data = JSON.parse(event.data);
+      const data = JSON.parse(event.data) as EMap[K];
 
       _callback({
-        type,
+        type: eventName,
         data,
       });
     };
 
-    // Only one listenter at a time per event.  If a second is needed, then change the code and document why.
+    // Only one listener at a time per event.
     this.removeEventListener(eventName);
 
     this._callbacks[eventName] = callback;
 
     this.eventSource?.addEventListener(eventName, callback);
+
+    const stopListening = () => this.removeEventListener(eventName);
+
+    return stopListening;
   }
 
   removeEventListener(eventName: string) {
@@ -87,5 +93,26 @@ class Client<T> {
     );
   }
 }
+
+// class ClientManager {
+//   private clients: Map<string, Client> = new Map();
+
+//   getClient(path: string, channel?: string) {
+//     const resolvedPath = channel ? urlJoin(path, channel) : path;
+
+//     if (!this.clients.has(resolvedPath)) {
+//       this.clients.set(resolvedPath, new Client(resolvedPath));
+//     }
+
+//     const client = this.clients.get(resolvedPath)!;
+
+//     const close = () => {
+//       client.close();
+//       this.clients.delete(resolvedPath);
+//     };
+
+//     return { close, client };
+//   }
+// }
 
 export { Client };
