@@ -15,7 +15,7 @@ import FastifySSEPlugin from "fastify-sse-v2";
 import {
   ChannelManager,
   MessageHistory,
-  type TMessage,
+  type Message,
 } from "./utils/server-utils";
 
 const channelManager = new ChannelManager();
@@ -23,11 +23,14 @@ const messageHistory = new MessageHistory();
 
 const eventEmitter: EventEmitter = new EventEmitter();
 
-type TOptions = FastifyPluginOptions & {
+type Options = FastifyPluginOptions & {
   schema?: Record<string, any>;
   preHandler?: any;
 
   didRegisterToChannel?: (channel: string) => void;
+
+  didUnregisterFromChannel?: (channel: string) => void;
+
   // This was added since preHandler doesn't have the correct augemented types
   // on request.
   canRegisterToChannel?: (
@@ -46,7 +49,7 @@ type TOptions = FastifyPluginOptions & {
  * differnet event listners attached to that one connection.
  */
 const fastifyPlugin: FastifyPluginCallback<
-  TOptions,
+  Options,
   RawServerDefault,
   FastifyTypeProvider,
   FastifyBaseLogger
@@ -88,6 +91,8 @@ const fastifyPlugin: FastifyPluginCallback<
       const channel = request.params.channel;
       const lastEventId: number | undefined = request.headers["last-event-id"];
       const didRegisterToChannel = opts?.didRegisterToChannel ?? (() => null);
+      const didUnregisterFromChannel =
+        opts?.didUnregisterFromChannel ?? (() => null);
       const canRegisterToChannel = opts?.canRegisterToChannel ?? (() => true);
 
       if (await canRegisterToChannel(request, channel)) {
@@ -116,6 +121,8 @@ const fastifyPlugin: FastifyPluginCallback<
 
           channelManager.removeClient(channel, raw);
           abortController.abort();
+
+          didUnregisterFromChannel(channel);
         });
 
         /**
@@ -137,11 +144,9 @@ const fastifyPlugin: FastifyPluginCallback<
             // nodejs.org/api/events.html#eventsonemitter-eventname-options
 
             try {
-              for await (
-                const events of on(eventEmitter, channel, {
-                  signal: abortController.signal,
-                })
-              ) {
+              for await (const events of on(eventEmitter, channel, {
+                signal: abortController.signal,
+              })) {
                 for (let event of events) {
                   yield event;
                 }
@@ -178,7 +183,7 @@ const sendSSEMessage = <
   payload: EMap[T],
 ) => {
   // create a message
-  const message: TMessage = {
+  const message: Message = {
     event: eventName,
     data: JSON.stringify(payload),
     id: messageHistory.nextId(),

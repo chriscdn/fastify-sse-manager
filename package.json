@@ -1,24 +1,21 @@
 {
   "name": "@chriscdn/fastify-sse-manager",
-  "version": "0.0.25",
+  "version": "2.0.0",
   "license": "MIT",
   "type": "module",
   "exports": {
     "./server": {
       "types": "./lib/server.d.ts",
-      "require": "./lib/server.cjs",
-      "default": "./lib/server.esm.js"
+      "default": "./lib/server.js"
     },
     "./client": {
       "types": "./lib/client.d.ts",
-      "require": "./lib/client.cjs",
-      "default": "./lib/client.esm.js"
+      "default": "./lib/client.js"
     }
   },
-  "___types": "./lib/index.d.ts",
   "scripts": {
-    "build": "rm -rf ./lib/ && microbundle --entry ./src/server.ts --output lib/server.js --format modern,esm,cjs --target node && microbundle --entry ./src/client.ts --output lib/client.js --format modern,esm,cjs --target browser",
-    "dev": "microbundle watch"
+    "build": "tsup",
+    "watch": "yarn build --watch"
   },
   "dependencies": {
     "fastify-sse-v2": "^4.2.1",
@@ -26,12 +23,11 @@
   },
   "devDependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
-    "@types/events": "^3.0.3",
-    "@types/node": "^22.14.0",
-    "fastify": "5.2.2",
-    "fastify-static": "^4.7.0",
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/node": "^25.5.2",
+    "fastify": "5.8.4",
     "json-schema-to-ts": "^3.1.1",
-    "microbundle": "^0.15.1",
-    "typescript": "^5.8.3"
+    "tsup": "^8.5.1",
+    "typescript": "5"
   }
 }
