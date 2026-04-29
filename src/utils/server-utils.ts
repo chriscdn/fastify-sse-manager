@@ -55,6 +55,7 @@ class MessageHistory {
   constructor(
     private messageHistory: Array<MessageHistoryItem> = [],
     private lastId: number = 0,
+    private maxHistory: number,
   ) {}
 
   messageHistoryForChannel(
@@ -73,7 +74,7 @@ class MessageHistory {
     this.messageHistory.push({ channelName, id: message.id, message });
 
     // keep last 10000 messages.. TODO: make configurable
-    this.messageHistory = this.messageHistory.slice(-10000);
+    this.messageHistory = this.messageHistory.slice(-this.maxHistory);
   }
 
   nextId() {

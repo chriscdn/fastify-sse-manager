@@ -18,8 +18,10 @@ import {
   type Message,
 } from "./utils/server-utils";
 
+const MAX_HISTORY = 5_000;
+
 const channelManager = new ChannelManager();
-const messageHistory = new MessageHistory();
+const messageHistory = new MessageHistory([], 0, MAX_HISTORY);
 
 const eventEmitter: EventEmitter = new EventEmitter();
 
@@ -113,15 +115,26 @@ const fastifyPlugin: FastifyPluginCallback<
         console.log("UA: ", ua);
         console.log("*************");
 
+        // once a minute we send a ping
+        const heartbeat = setInterval(() => {
+          try {
+            raw.write(": ping\n\n");
+          } catch {
+            clearInterval(heartbeat);
+            channelManager.removeClient(channel, raw);
+            abortController.abort();
+          }
+        }, 30_000);
+
         request.socket.on("close", () => {
           console.log("*************");
           console.log("SSE Request Closed");
           console.log("UA: ", ua);
           console.log("*************");
 
+          clearInterval(heartbeat);
           channelManager.removeClient(channel, raw);
           abortController.abort();
-
           didUnregisterFromChannel(channel);
         });
 
@@ -157,7 +170,7 @@ const fastifyPlugin: FastifyPluginCallback<
           })(),
         );
       } else {
-        return reply.code(400).send({ error: "Bad Request" });
+        return reply.code(403).send("Forbidden");
       }
     },
   });
