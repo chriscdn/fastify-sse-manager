@@ -91,10 +91,14 @@ const fastifyPlugin: FastifyPluginCallback<
 
     async handler(request, reply) {
       const channel = request.params.channel;
-      const lastEventId: number | undefined = request.headers["last-event-id"];
+
+      const lastEventId = request.headers["last-event-id"];
+
       const didRegisterToChannel = opts?.didRegisterToChannel ?? (() => null);
+
       const didUnregisterFromChannel =
         opts?.didUnregisterFromChannel ?? (() => null);
+
       const canRegisterToChannel = opts?.canRegisterToChannel ?? (() => true);
 
       if (await canRegisterToChannel(request, channel)) {
@@ -106,6 +110,7 @@ const fastifyPlugin: FastifyPluginCallback<
         const ua = request.headers["user-agent"];
 
         const raw = reply.raw;
+
         const abortController = new AbortController();
 
         channelManager.addClient(channel, raw);

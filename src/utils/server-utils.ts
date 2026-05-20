@@ -24,7 +24,9 @@ class ChannelManager {
 
   removeClient(channel: string, client: NodeJS.WritableStream): void {
     const clients = this.getClients(channel);
+
     clients.delete(client);
+
     if (clients.size === 0) {
       this.channels.delete(channel);
     }
@@ -39,9 +41,11 @@ class ChannelManager {
 
   getConnectionCounts(): Record<string, number> {
     const result: Record<string, number> = {};
+
     for (const [channel, clients] of this.channels.entries()) {
       result[channel] = clients.size;
     }
+
     return result;
   }
 
@@ -53,7 +57,7 @@ class ChannelManager {
 
 class MessageHistory {
   constructor(
-    private messageHistory: Array<MessageHistoryItem> = [],
+    private messageHistory: MessageHistoryItem[] = [],
     private lastId: number = 0,
     private maxHistory: number,
   ) {}
