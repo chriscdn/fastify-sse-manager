@@ -219,4 +219,6 @@ const sendSSEMessage = <
 const getConnectionCount = (channel: string) =>
   channelManager.getConnectionCount(channel);
 
-export { fastifyPlugin, getConnectionCount, sendSSEMessage };
+const getActiveChannels = () => channelManager.getActiveChannels();
+
+export { fastifyPlugin, getConnectionCount, sendSSEMessage, getActiveChannels };

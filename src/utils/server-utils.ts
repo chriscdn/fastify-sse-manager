@@ -53,6 +53,10 @@ class ChannelManager {
     const clients = this.channels.get(channel);
     return clients ? clients.size : 0;
   }
+
+  getActiveChannels() {
+    return this.channels.keys();
+  }
 }
 
 class MessageHistory {

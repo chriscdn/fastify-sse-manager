@@ -33,6 +33,7 @@ declare const fastifyPlugin: FastifyPluginCallback<Options, RawServerDefault, Fa
  */
 declare const sendSSEMessage: <EMap extends Record<string, any>, T extends keyof EMap & string>(channel: string, eventName: T, payload: EMap[T]) => Message;
 declare const getConnectionCount: (channel: string) => number;
+declare const getActiveChannels: () => MapIterator<string>;
 //#endregion
-export { fastifyPlugin, getConnectionCount, sendSSEMessage };
+export { fastifyPlugin, getActiveChannels, getConnectionCount, sendSSEMessage };
 //# sourceMappingURL=server.d.mts.map

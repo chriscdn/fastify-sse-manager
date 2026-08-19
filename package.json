@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "watch": "yarn build --watch"
+    "watch": "pn build --watch"
   },
   "dependencies": {
     "fastify-sse-v2": "^4.2.1",
