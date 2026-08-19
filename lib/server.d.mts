@@ -1,17 +1,18 @@
-import { FastifyPluginCallback, FastifyPluginOptions, FastifyRequest, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger } from 'fastify';
-
+import { FastifyBaseLogger, FastifyPluginCallback, FastifyPluginOptions, FastifyRequest, FastifyTypeProvider, RawServerDefault } from "fastify";
+//#region src/utils/server-utils.d.ts
 type Message = {
-    event: string;
-    data: string;
-    id: number;
+  event: string;
+  data: string;
+  id: number;
 };
-
+//#endregion
+//#region src/server.d.ts
 type Options = FastifyPluginOptions & {
-    schema?: Record<string, any>;
-    preHandler?: any;
-    didRegisterToChannel?: (channel: string) => void;
-    didUnregisterFromChannel?: (channel: string) => void;
-    canRegisterToChannel?: (request: FastifyRequest, channel: string) => Promise<boolean> | boolean;
+  schema?: Record<string, any>;
+  preHandler?: any;
+  didRegisterToChannel?: (channel: string) => void;
+  didUnregisterFromChannel?: (channel: string) => void;
+  canRegisterToChannel?: (request: FastifyRequest, channel: string) => Promise<boolean> | boolean;
 };
 /**
  * A downside to this implementation is that `/route/a/<channel>` and
@@ -32,5 +33,6 @@ declare const fastifyPlugin: FastifyPluginCallback<Options, RawServerDefault, Fa
  */
 declare const sendSSEMessage: <EMap extends Record<string, any>, T extends keyof EMap & string>(channel: string, eventName: T, payload: EMap[T]) => Message;
 declare const getConnectionCount: (channel: string) => number;
-
+//#endregion
 export { fastifyPlugin, getConnectionCount, sendSSEMessage };
+//# sourceMappingURL=server.d.mts.map

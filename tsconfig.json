@@ -2,8 +2,8 @@
   "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "node"
+    "module": "ESNext"
+    // "moduleResolution": "bundler"
     // "esModuleInterop": true
   },
   "include": ["src"]
