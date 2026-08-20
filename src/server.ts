@@ -221,4 +221,12 @@ const getConnectionCount = (channel: string) =>
 
 const getActiveChannels = () => channelManager.getActiveChannels();
 
-export { fastifyPlugin, getConnectionCount, sendSSEMessage, getActiveChannels };
+const hasChannel = (channel: string) => channelManager.hasChannel(channel);
+
+export {
+  fastifyPlugin,
+  getConnectionCount,
+  sendSSEMessage,
+  getActiveChannels,
+  hasChannel,
+};

@@ -57,6 +57,10 @@ class ChannelManager {
   getActiveChannels() {
     return this.channels.keys();
   }
+
+  hasChannel(channel: string): boolean {
+    return this.channels.has(channel);
+  }
 }
 
 class MessageHistory {
